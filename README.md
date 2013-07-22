@@ -1,4 +1,6 @@
-rise
+Rise
 ====
 
-Rise is a Javascript microframework
+Rise is a Javascript microframework.
+
+Still in alpha phase.

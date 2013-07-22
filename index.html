@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0">
+	
+	<title>playground</title>
+	
+	
+	<script src="js/rise.js"></script>
+	
+</head>
+<body>
+	<a href="#" class="foo">1</a>
+	<a href="#" class="foo">2</a>
+	<a href="#" class="foo">3</a>
+	<a href="#" class="foo">4</a>
+	<a href="#" class="foo">5</a>
+	<a href="#" class="foo">6</a>
+	<a href="#" class="foo">7</a>
+	<a href="#" class="foo">8</a>
+	<a href="#" class="foo">9</a>
+	<a href="#" class="foo">10</a>
+	<a href="#" id="bar">11</a>
+	
+	<div class="parent">
+		<div class="parent-sub">
+			<div class="child">
+				<div class="child-sub">	
+					<a href="#" class="child-link">Super Child</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<script>
+		;(function($) {
+			$('.foo').addClass('bar').first().removeClass('bar');
+		})(Rise);
+	</script>
+</body>
+</html>
