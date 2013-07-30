@@ -1,7 +1,7 @@
 (function (window, document, undefined) {
 
-    var Rise = function (selector) {
-        return new Rise.fn.init(selector);
+    var Rise = function (selector, context) {
+        return new Rise.fn.init(selector, context);
     }
 
     var handleListenerAssignment = function () {
@@ -29,71 +29,75 @@
     // private addClass method
 
     var addClass = function (element, name) {
-        if ((' ' + element.className + ' ').indexOf(' ' + name + ' ') == -1) {
-            if (element.className == '') {
-                element.className = name;
-            } else {
-                element.className += ' ' + name;
+        if (element.classList) {
+            if (!element.classList.contains(name)) {
+                element.classList.add(name);
+            }
+        } else {
+            if ((' ' + element.className + ' ').indexOf(' ' + name + ' ') == -1) {
+                if (element.className == '') {
+                    element.className = name;
+                } else {
+                    element.className += ' ' + name;
+                }
             }
         }
     };
 
     // private removeClass method
-    // possible performance refactor needed
 
     var removeClass = function (element, name) {
-        if ((' ' + element.className + ' ').indexOf(' ' + name + ' ') > -1) {
-            var pattern = '(?:^|\\s)' + name + '(?!\\S)';
-            element.className = element.className.replace(new RegExp(pattern, 'g'), '');
+        if (element.classList) {
+            if (element.classList.contains(name)) {
+                element.classList.remove(name);
+            }
+        } else {
+            if ((' ' + element.className + ' ').indexOf(' ' + name + ' ') > -1) {
+                var pattern = '(?:^|\\s)' + name + '(?!\\S)';
+                element.className = element.className.replace(new RegExp(pattern, 'g'), '');
+            }
         }
     };
 
-
     Rise.fn = Rise.prototype = {
-        init: function (selector) {
-            // return an empty array if no selector found
-            if (!selector) {
-                this.selection = [];
-                this.length = 0;
+        init: function (selector, context) {
+
+            var result;
+
+            if (!selector || selector.length == 0) {
                 return this;
             }
 
-            // if we are sent a node return the selector
-            if (selector.nodeType) {
-                this.selection = selector;
-                this.length = 1;
-            } else { // return the node list
-                if (selector[0] === '.') {
-                    this.selection = document.getElementsByClassName(selector.slice(1, selector.length));
-                } else if (selector[0] === '#') {
-                    this.selection = document.getElementById(selector.slice(1, selector.length));
-                } else {
-                    this.selection = document.querySelectorAll(selector);
-                }
-
-                this.length = this.selection.length;
+            // handle missing context or array passed to context
+            if (!context || context.length > 1) {
+                context = document;
+            } else {
+                context = context[0];
             }
+
+            if (selector.nodeType) {
+                result = [selector];
+            } else {
+                if (selector[0] === '.') {
+                    result = context.getElementsByClassName(selector.slice(1, selector.length));
+                } else if (selector[0] === '#') {
+                    result = context.getElementById(selector.slice(1, selector.length));
+                } else {
+                    result = context.querySelectorAll(selector);
+                }
+            }
+
+            return this.merge(this, result);
         },
 
         addListener: handleListenerAssignment.addListener,
 
         removeListener: handleListenerAssignment.removeListener,
 
-        on: function (event, callback) {
-            if (this.length > 1) {
-                for (var i = 0, len = this.length; i !== len; i++) {
-                    this.addListener(this.selection[i], event, callback);
-                }
-            } else {
-                this.addListener(this.selection, event, callback);
-            }
-
-            return this;
-        },
-
         eq: function (index) {
-            var el = this.selection[index];
-            return el ? new Rise(el) : this;
+            var len = this.length;
+
+            return len > 0 ? new Rise(this[index]) : new Rise(this);
         },
 
         first: function () {
@@ -107,10 +111,10 @@
         addClass: function (name) {
             if (this.length > 1) {
                 for (var i = 0, len = this.length; i !== len; i++) {
-                    addClass(this.selection[i], name);
+                    addClass(this[i], name);
                 }
             } else {
-                addClass(this.selection, name);
+                addClass(this[0], name);
             }
 
             return this;
@@ -119,22 +123,68 @@
         removeClass: function (name) {
             if (this.length > 1) {
                 for (var i = 0, len = this.length; i !== len; i++) {
-                    removeClass(this.selection[i], name);
+                    removeClass(this[i], name);
                 }
             } else {
-                removeClass(this.selection, name);
+                removeClass(this[0], name);
             }
 
             return this;
         },
+
+        hasClass: function (name) {
+
+        },
+
+        on: function (event, callback) {
+            if (this.length > 1) {
+                for (var i = 0, len = this.length; i !== len; i++) {
+                    this.addListener(this[i], event, callback);
+                }
+            } else {
+                this.addListener(this[0], event, callback);
+            }
+
+            return this;
+        },
+
+        off: function (event, callback) {
+            if (this.length > 1) {
+                for (var i = 0, len = this.length; i !== len; i++) {
+                    this.removeListener(this[i], event, callback);
+                }
+            } else {
+                this.removeListener(this[0], event, callback);
+            }
+
+            return this;
+        },
+
+        // taken from jQuery because im lazy
+        merge: function (first, second) {
+            var l = second.length,
+                i = first.length || 0, // in case we pass an object
+                j = 0;
+
+            if (typeof l === "number") {
+                for (; j < l; j++) {
+                    first[i++] = second[j];
+                }
+            } else {
+                while (second[j] !== undefined) {
+                    first[i++] = second[j++];
+                }
+            }
+
+            first.length = i;
+
+            return first;
+        }
     }
 
 
-    // since were calling the init function 
-    // we need to set its prototype to fn
     Rise.fn.init.prototype = Rise.fn;
 
-    // expose Rise to global window object
     window.Rise = window.$ = Rise;
 
 })(window, document);
