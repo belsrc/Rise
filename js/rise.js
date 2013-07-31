@@ -159,6 +159,13 @@
 
             return this;
         },
+        
+        make: function (element) {
+            // coud either..
+            // document.createElement( element );
+            // or
+            // this..appendChild( document.createElement( element ) );
+        }
 
         // taken from jQuery because im lazy
         merge: function (first, second) {
