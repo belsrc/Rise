@@ -34,7 +34,7 @@
                 element.classList.add(name);
             }
         } else {
-            if ((' ' + element.className + ' ').indexOf(' ' + name + ' ') == -1) {
+            if ((' ' + element.className + ' ').indexOf(' ' + name + ' ')) {
                 if (element.className == '') {
                     element.className = name;
                 } else {
@@ -52,7 +52,7 @@
                 element.classList.remove(name);
             }
         } else {
-            if ((' ' + element.className + ' ').indexOf(' ' + name + ' ') > -1) {
+            if (~(' ' + element.className + ' ').indexOf(' ' + name + ' ')) {
                 var pattern = '(?:^|\\s)' + name + '(?!\\S)';
                 element.className = element.className.replace(new RegExp(pattern, 'g'), '');
             }
@@ -64,7 +64,7 @@
 
             var result;
 
-            if (!selector || selector.length == 0) {
+            if (!selector || !selector.length) {
                 return this;
             }
 
